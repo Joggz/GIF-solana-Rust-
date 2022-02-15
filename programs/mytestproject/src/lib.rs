@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 
-declare_id!("3oCttiW8UNdLnh5oJmoPZ37mW6srPL6HGx7QR4ANVyWv");
+
+declare_id!("CvhXZkJxLzQ8YWgak9qYcDqDRjaUBTXF6HSfGcsLw9nZ");
 
 #[program]
 pub mod mytestproject {
@@ -17,13 +18,25 @@ pub mod mytestproject {
         let user = &mut ctx.accounts.user;
         let item = ItemStruct {
             gif_link: gif_link.to_string(),
-            user_address: *user.to_account_info().key
+            user_address: *user.to_account_info().key,
+            likes: 0,
         };
         base_account.gifs_list.push(item);
         base_account.total_gifs += 1;
         Ok(())
     }
-}
+
+    pub fn upvotes(ctx: Context<AddGif>, filter: String) -> ProgramResult {
+        let base_account = &mut ctx.accounts.base_account;
+        for element in &mut base_account.gifs_list {
+            if filter.to_string() == element.gif_link {
+                element.likes += 1;            }
+        }
+       
+  
+      Ok(())
+    
+    }}
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {
@@ -45,7 +58,8 @@ pub struct AddGif<'info> {
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct ItemStruct {
     pub gif_link: String,
-    pub user_address: Pubkey
+    pub user_address: Pubkey,
+    pub likes: u64,
 }
 
 #[account]
